@@ -12,18 +12,13 @@ use App\Filament\Resources\CountryResource\Pages;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Actions\EditAction;
 use Filament\Tables\Actions\DeleteBulkAction;
-use Filament\Tables\Actions\ExportAction;
+//use Filament\Tables\Actions\ExportAction;
 
 class CountryResource extends Resource
 {
     protected static ?string $model = Country::class;
     protected static ?string $navigationGroup = 'Location Management';
     protected static ?string $navigationIcon = 'heroicon-o-globe-alt';
-
-    public static function canViewAny(): bool
-    {
-        return auth()->user()->can('manage_countries');
-    }
 
     public static function form(Form $form): Form
     {
@@ -51,9 +46,6 @@ class CountryResource extends Resource
                 TextColumn::make('phonecode')->label('Phone Code')->sortable()->searchable(),
             ])
             ->filters([])
-            ->headerActions([
-                ExportAction::make(),
-            ])
             ->actions([
                 EditAction::make(),
             ])

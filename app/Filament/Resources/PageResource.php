@@ -9,38 +9,50 @@ use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
+use Filament\Forms\Components\Section;
+use Filament\Forms\Components\TextInput;
+use Filament\Forms\Components\RichEditor;
+use Filament\Forms\Components\Textarea;
 use Filament\Tables\Columns\TextColumn;
+use Filament\Tables\Actions\EditAction;
+use Filament\Tables\Actions\DeleteBulkAction;
+use Filament\Tables\Actions\BulkActionGroup;
 
 class PageResource extends Resource
 {
     protected static ?string $model = Page::class;
+
     protected static ?string $navigationIcon = 'heroicon-o-document-text';
     protected static ?string $navigationGroup = 'Content Management';
 
     public static function form(Form $form): Form
     {
         return $form->schema([
-            Forms\Components\Section::make('Basic Info')
+            Section::make('Basic Info')
+                ->description('Title and content of the page.')
                 ->schema([
-                    Forms\Components\TextInput::make('title')
+                    TextInput::make('title')
                         ->required()
                         ->maxLength(255),
-                    Forms\Components\RichEditor::make('content')
-                        ->required()
-                        ->columnSpanFull(),
-                ])
-                ->columns(2),
 
-            Forms\Components\Section::make('SEO Settings')
+                    RichEditor::make('content')
+                        ->label('Content')
+                        ->required()
+                        ->toolbarButtons([
+                            'bold', 'italic', 'underline', 'bulletList', 'orderedList', 'link'
+                        ])
+                        ->columnSpanFull(),
+                ]),
+
+            Section::make('SEO (Optional)')
+                ->description('These fields are optional and help with SEO.')
                 ->schema([
-                    Forms\Components\Textarea::make('og_title')->label('OG Title'),
-                    Forms\Components\Textarea::make('og_type')->label('OG Type'),
-                    Forms\Components\Textarea::make('og_description')->label('OG Description'),
-                    Forms\Components\Textarea::make('meta_title')->label('Meta Title'),
-                    Forms\Components\Textarea::make('meta_keywords')->label('Meta Keywords'),
-                    Forms\Components\Textarea::make('meta_description')->label('Meta Description'),
+                    Textarea::make('meta_title')->label('Meta Title')->rows(2),
+                    Textarea::make('meta_keywords')->label('Meta Keywords')->rows(2),
+                    Textarea::make('meta_description')->label('Meta Description')->rows(3),
                 ])
-                ->columns(2),
+                ->columns(1)
+                ->collapsible(),
         ]);
     }
 
@@ -48,15 +60,28 @@ class PageResource extends Resource
     {
         return $table
             ->columns([
-                TextColumn::make('title')->searchable()->sortable(),
-                TextColumn::make('created_at')->dateTime(),
-                TextColumn::make('updated_at')->dateTime(),
+                TextColumn::make('title')
+                    ->sortable()
+                    ->searchable(),
+
+                TextColumn::make('created_at')
+                    ->label('Created')
+                    ->dateTime('d M Y, H:i')
+                    ->sortable(),
+
+                TextColumn::make('updated_at')
+                    ->label('Updated')
+                    ->dateTime('d M Y, H:i')
+                    ->sortable(),
             ])
+            ->defaultSort('created_at', 'desc')
             ->actions([
-                Tables\Actions\EditAction::make(),
+                EditAction::make(),
             ])
             ->bulkActions([
-                Tables\Actions\DeleteBulkAction::make(),
+                BulkActionGroup::make([
+                    DeleteBulkAction::make(),
+                ]),
             ]);
     }
 

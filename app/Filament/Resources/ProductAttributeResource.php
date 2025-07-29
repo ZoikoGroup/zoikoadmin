@@ -18,7 +18,7 @@ class ProductAttributeResource extends Resource
 {
     protected static ?string $model = ProductAttribute::class;
     protected static ?string $navigationIcon = 'heroicon-o-tag';
-    protected static ?string $navigationGroup = 'Products ';
+    protected static ?string $navigationGroup = 'Products';
     protected static ?int $navigationSort = 2;
 
     public static function form(Form $form): Form

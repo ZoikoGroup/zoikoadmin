@@ -100,4 +100,19 @@ return [
 
     'livewire_loading_delay' => 'default',
 
+    'panels' => [
+
+        'admin' => [
+            'path' => 'admin', // this becomes /admin/login
+            'middleware' => [
+                'web',
+                'auth',
+            ],
+            'providers' => [
+                \App\Providers\Filament\AdminPanelProvider::class,
+            ],
+        ],
+
+    ],
+
 ];

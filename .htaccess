@@ -1,0 +1,10 @@
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+    RewriteBase /zoikotelecom_backend_filament_admin/
+    RewriteRule ^index\.php$ - [L]
+
+    # Redirect all requests to index.php
+    RewriteCond %{REQUEST_FILENAME} !-f
+    RewriteCond %{REQUEST_FILENAME} !-d
+    RewriteRule . /zoikotelecom_backend_filament_admin/index.php [L]
+</IfModule>

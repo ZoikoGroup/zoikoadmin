@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
+<html lang="<?php echo e(str_replace('_', '-', app()->getLocale())); ?>">
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -37,7 +37,7 @@
         <!-- Buttons Section -->
         <div class="flex flex-wrap justify-center gap-4 mb-12">
 
-		    <a href="{{ route('filament.admin.auth.login') }}" class="bg-red-500 hover:bg-red-600 text-white font-semibold px-5 py-2.5 rounded-lg shadow transition">
+		    <a href="<?php echo e(route('filament.admin.auth.login')); ?>" class="bg-red-500 hover:bg-red-600 text-white font-semibold px-5 py-2.5 rounded-lg shadow transition">
                 🔐 Admin Panel
             </a>
             <a href="https://laravel.com/docs" class="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 text-gray-800 dark:text-white px-5 py-2.5 rounded-lg shadow hover:bg-gray-50 dark:hover:bg-gray-700 transition">
@@ -55,8 +55,9 @@
 
         <!-- Laravel Version Footer -->
         <div class="text-sm text-gray-500 dark:text-gray-400 mt-auto">
-            Laravel v{{ Illuminate\Foundation\Application::VERSION }} (PHP v{{ PHP_VERSION }})
+            Laravel v<?php echo e(Illuminate\Foundation\Application::VERSION); ?> (PHP v<?php echo e(PHP_VERSION); ?>)
         </div>
     </div>
 </body>
 </html>
+<?php /**PATH C:\xampp\htdocs\zoikotelecom_backend_filament_admin\resources\views/welcome.blade.php ENDPATH**/ ?>

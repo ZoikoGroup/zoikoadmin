@@ -49,7 +49,7 @@ class PersonalAccessTokenResource extends Resource
         return $table
             ->columns([
                 TextColumn::make('name')->searchable(),
-                TextColumn::make('tokenable_type')->label('Owner Type1'),
+                TextColumn::make('tokenable_type')->label('Owner Type'),
                 TextColumn::make('tokenable_id')->label('Owner ID'),
                 TextColumn::make('abilities'),
                 TextColumn::make('last_used_at')->label('Last Used')->dateTime(),

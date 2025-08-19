@@ -3,7 +3,7 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Laravel App</title>
+    <title>ZoikoAdmin</title>
 
     <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.bunny.net">
@@ -29,27 +29,16 @@
         </div>
 
         <!-- Welcome Title -->
-        <h1 class="text-4xl font-bold mb-4">Welcome to Laravel</h1>
+        <h1 class="text-4xl font-bold mb-4">ZoikoAdmin</h1>
         <p class="text-lg text-gray-600 dark:text-gray-300 text-center max-w-xl mb-8">
-            Explore Laravel's features, documentation, and tools. Get started building amazing applications!
+            Welcome to ZoikoAdmin panel. Please sign in by below link.
         </p>
 
         <!-- Buttons Section -->
         <div class="flex flex-wrap justify-center gap-4 mb-12">
 
 		    <a href="{{ route('filament.admin.auth.login') }}" class="bg-red-500 hover:bg-red-600 text-white font-semibold px-5 py-2.5 rounded-lg shadow transition">
-                🔐 Admin Panel
-            </a>
-            <a href="https://laravel.com/docs" class="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 text-gray-800 dark:text-white px-5 py-2.5 rounded-lg shadow hover:bg-gray-50 dark:hover:bg-gray-700 transition">
-                📚 Documentation
-            </a>
-
-            <a href="https://laracasts.com" class="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 text-gray-800 dark:text-white px-5 py-2.5 rounded-lg shadow hover:bg-gray-50 dark:hover:bg-gray-700 transition">
-                🎥 Laracasts
-            </a>
-
-            <a href="https://laravel-news.com" class="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 text-gray-800 dark:text-white px-5 py-2.5 rounded-lg shadow hover:bg-gray-50 dark:hover:bg-gray-700 transition">
-                📰 Laravel News
+                🔐 Admin Login
             </a>
         </div>
 

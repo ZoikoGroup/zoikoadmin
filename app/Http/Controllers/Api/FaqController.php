@@ -24,6 +24,25 @@ class FaqController extends Controller
         ], 200);
     }
 
+    public function faqsByPage($pageId)
+{
+    $faqs = Faq::with(['page'])
+               ->where('page_id', $pageId)
+               ->get();
+
+    return response()->json($faqs);
+    }
+
+    public function faqsByProduct($productId)
+    {
+        $faqs = Faq::with(['product'])
+                ->where('product_id', $productId)
+                ->get();
+
+        return response()->json($faqs);
+    }
+
+
     /**
      * Show the form for creating a new resource.
      */
@@ -142,4 +161,6 @@ class FaqController extends Controller
             ], 200);
         }
     }
+
+
 }

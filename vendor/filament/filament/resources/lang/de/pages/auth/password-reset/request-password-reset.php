@@ -31,9 +31,13 @@ return [
     ],
 
     'notifications' => [
+        'sent' => [
+            'body' => 'Wenn Ihr Konto nicht existiert, erhalten Sie keine E-Mail.',
+        ],
 
         'throttled' => [
-            'title' => 'Zu viele Versuche. Versuchen Sie es bitte in :seconds Sekunden nochmal.',
+            'title' => 'Zu viele Versuche.',
+            'body' => 'Versuchen Sie es bitte in :seconds Sekunden nochmal.',
         ],
 
     ],

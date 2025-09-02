@@ -1,3 +1,15 @@
 zoikotelecom_backend_filament.zip
 *.zip
 .env
+/vendor
+/node_modules
+/public/storage
+/storage/*.key
+.env
+.phpunit.result.cache
+Homestead.json
+Homestead.yaml
+npm-debug.log
+yarn-error.log
+.idea
+.vscode

@@ -50,5 +50,11 @@ class User extends Authenticatable
         return $this->hasMany(\App\Models\OauthAccessToken::class);
     }
 
+    public function profile()
+    {
+        return $this->hasOne(UserProfile::class);
+    }
+
+
 }
 

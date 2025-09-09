@@ -24,6 +24,7 @@ use App\Http\Controllers\Api\CurrencyController;
 use App\Http\Controllers\Api\FaqController;
 use App\Http\Controllers\Api\MenuController;
 use App\Http\Controllers\Api\MenuItemController;
+use App\Http\Controllers\Api\PlansController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -41,7 +42,7 @@ use Illuminate\Support\Facades\Route;
 Route::middleware('auth:api')->get('/user', function (Request $request) {
     return $request->user();
 });
-Route::post('user/update/{id}', [UserController::class, 'update'])->middleware('auth:api');
+Route::post('user/update/{id}', [UserController::class, 'update'])->middleware(['auth:api', 'super_admin_only']);;
 
 //Route::get('/get', [PageController::class, 'index']); //route for all records/pages
 Route::get('/get/page/{id}', [PageController::class, 'index']);  // route for single page
@@ -183,6 +184,15 @@ Route::group(['namespace' => 'api', 'prefix' => 'v1'], function () {
     Route::get('email-templates', [EmailTemplateController::class, 'index'])->middleware('auth:api');
     Route::get('email-template/{id}', [EmailTemplateController::class, 'show'])->middleware('auth:api');
     Route::delete('email-template/delete/{id}', [EmailTemplateController::class, 'destroy'])->middleware('auth:api');
+
+    //Plans
+    Route::post('plan/create', [\App\Http\Controllers\Api\PlansController::class, 'create'])->middleware(['auth:api', 'admin_only']);
+    Route::post('plan/update/{id}', [\App\Http\Controllers\Api\PlansController::class, 'update'])->middleware(['auth:api', 'admin_only']);
+    Route::delete('plan/delete/{id}', [\App\Http\Controllers\Api\PlansController    ::class, 'delete'])->middleware(['auth:api', 'admin_only']);
+    Route::get('plans', [\App\Http\Controllers\Api\PlansController::class, 'plans']);
+    Route::get('plans/prepaid', [\App\Http\Controllers\Api\PlansController::class, 'plan_prepaid']);
+    Route::get('plans/postpaid', [\App\Http\Controllers\Api\PlansController::class, 'plan_postpaid']);
+    Route::get('plan/{id}', [\App\Http\Controllers\Api\PlansController::class, 'plan_by_id']);  
 });
 
 

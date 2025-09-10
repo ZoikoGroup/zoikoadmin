@@ -36,8 +36,81 @@ class ProductResource extends Resource
                     'unique' => 'This product name already exists.',
                 ]),
 
-            Textarea::make('description')->columnSpanFull(),
-            Textarea::make('short_description')->columnSpanFull(),
+            // --- Description with Toggle Source/Editor ---
+            Forms\Components\RichEditor::make('description')
+                ->label('Description')
+                ->extraAttributes([
+                    'x-data' => '{ showSource: false, textarea: null, editor: null }',
+                    'x-init' => '
+                        this.editor = $el.querySelector("trix-editor");
+                        this.textarea = document.createElement("textarea");
+                        this.textarea.style.display = "none";
+                        this.textarea.style.width = "100%";
+                        this.textarea.style.minHeight = "200px";
+                        this.textarea.value = this.editor.editor.getDocument().toString();
+
+                        $el.appendChild(this.textarea);
+
+                        let toggle = document.createElement("button");
+                        toggle.innerText = "Toggle Source/Editor";
+                        toggle.type = "button";
+                        toggle.style.cssText = "margin-left: 10px; color: blue; font-size: 12px;";
+                        toggle.addEventListener("click", () => {
+                            this.showSource = !this.showSource;
+
+                            if (this.showSource) {
+                                this.textarea.value = this.editor.editor.getDocument().toString();
+                                this.editor.style.display = "none";
+                                this.textarea.style.display = "block";
+                            } else {
+                                this.editor.editor.loadHTML(this.textarea.value);
+                                this.textarea.style.display = "none";
+                                this.editor.style.display = "block";
+                            }
+                        });
+
+                        $el.parentNode.insertBefore(toggle, $el);
+                    ',
+                ])
+                ->columnSpanFull(),
+
+            // --- Short Description with Toggle Source/Editor ---
+            Forms\Components\RichEditor::make('short_description')
+                ->label('Short Description')
+                ->extraAttributes([
+                    'x-data' => '{ showSource: false, textarea: null, editor: null }',
+                    'x-init' => '
+                        this.editor = $el.querySelector("trix-editor");
+                        this.textarea = document.createElement("textarea");
+                        this.textarea.style.display = "none";
+                        this.textarea.style.width = "100%";
+                        this.textarea.style.minHeight = "150px";
+                        this.textarea.value = this.editor.editor.getDocument().toString();
+
+                        $el.appendChild(this.textarea);
+
+                        let toggle = document.createElement("button");
+                        toggle.innerText = "Toggle Source/Editor";
+                        toggle.type = "button";
+                        toggle.style.cssText = "margin-left: 10px; color: orange; font-size: 12px;";
+                        toggle.addEventListener("click", () => {
+                            this.showSource = !this.showSource;
+
+                            if (this.showSource) {
+                                this.textarea.value = this.editor.editor.getDocument().toString();
+                                this.editor.style.display = "none";
+                                this.textarea.style.display = "block";
+                            } else {
+                                this.editor.editor.loadHTML(this.textarea.value);
+                                this.textarea.style.display = "none";
+                                this.editor.style.display = "block";
+                            }
+                        });
+
+                        $el.parentNode.insertBefore(toggle, $el);
+                    ',
+                ])
+                ->columnSpanFull(),
 
             TextInput::make('price_uk')->numeric()->required(),
             TextInput::make('price_usa')->numeric()->required(),
@@ -57,25 +130,24 @@ class ProductResource extends Resource
                 ->searchable(),
 
             Repeater::make('productAttributes')
-    ->label('Product Attributes')
-    ->relationship('productAttributes')
-    ->schema([
-        Forms\Components\Grid::make(3)->schema([
-            TextInput::make('name')->label('Attribute Name')->required(),
-            TextInput::make('value')->label('Value')->required(),
-            TextInput::make('unit')->label('Unit'),
-        ]),
-    ])
-    ->columns(1)
-    ->defaultItems(1)
-    ->addActionLabel('Add Attribute')
-    ->itemLabel(fn (array $state): ?string => $state['name'] ?? null)
-    ->cloneable()
-    ->reorderable()
-    ->disableLabel()
-    ->columnSpanFull()
-    ->hidden(fn ($livewire) => $livewire instanceof \Filament\Resources\Pages\CreateRecord),
-
+                ->label('Product Attributes')
+                ->relationship('productAttributes')
+                ->schema([
+                    Forms\Components\Grid::make(3)->schema([
+                        TextInput::make('name')->label('Attribute Name')->required(),
+                        TextInput::make('value')->label('Value')->required(),
+                        TextInput::make('unit')->label('Unit'),
+                    ]),
+                ])
+                ->columns(1)
+                ->defaultItems(1)
+                ->addActionLabel('Add Attribute')
+                ->itemLabel(fn (array $state): ?string => $state['name'] ?? null)
+                ->cloneable()
+                ->reorderable()
+                ->disableLabel()
+                ->columnSpanFull()
+                ->hidden(fn ($livewire) => $livewire instanceof \Filament\Resources\Pages\CreateRecord),
         ]);
     }
 
@@ -86,7 +158,7 @@ class ProductResource extends Resource
                 TextColumn::make('name')->searchable()->sortable(),
                 TextColumn::make('short_description')
                     ->limit(30)
-                    ->tooltip(fn ($record) => $record->short_description),
+                    ->tooltip(fn ($record) => strip_tags($record->short_description)),
                 TextColumn::make('price_uk')->label('UK Price')->sortable(),
                 TextColumn::make('price_usa')->label('USA Price')->sortable(),
                 TextColumn::make('productCategory.name')->label('Category')->sortable()->toggleable(),
@@ -115,8 +187,7 @@ class ProductResource extends Resource
             ])
             ->bulkActions([
                 Tables\Actions\DeleteBulkAction::make(),
-                // Optional custom export stub
-                // Tables\Actions\Action::make('export')->label('Export Selected')->icon('heroicon-o-arrow-down-tray')->action(fn ($records) => ...),
+
             ])
             ->defaultSort('name');
     }

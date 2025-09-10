@@ -4,10 +4,12 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class Faq extends Model
 {
     use HasFactory;
+
     protected $fillable = [
         'question',
         'answer',
@@ -17,12 +19,17 @@ class Faq extends Model
         'product_id',
         'page_id',
     ];
-    public function product()
+
+    protected $casts = [
+        'faq_category' => 'array', // ✅ ensures JSON cast
+    ];
+
+    public function product(): BelongsTo
     {
         return $this->belongsTo(Product::class);
     }
 
-    public function page()
+    public function page(): BelongsTo
     {
         return $this->belongsTo(Page::class);
     }

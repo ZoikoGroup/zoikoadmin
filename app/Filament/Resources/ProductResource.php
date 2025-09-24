@@ -80,8 +80,8 @@ class ProductResource extends Resource
                 ->relationship('plan', 'title')
                 ->label('Plan')
                 ->searchable()
-                ->preload()
-                ->required(), // remove if plan is optional
+                ->preload(),
+                
 
             // ✅ Attributes Repeater
             Repeater::make('productAttributes')

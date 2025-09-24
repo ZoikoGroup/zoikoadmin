@@ -11,13 +11,13 @@ use Filament\Forms\Form;
 use Filament\Tables\Table;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Columns\BooleanColumn;
+use Filament\Tables\Columns\ImageColumn;
 use Filament\Forms\Components\TextInput;
-use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Toggle;
+use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\Repeater;
 use Filament\Tables\Filters\SelectFilter;
-use Illuminate\Validation\Rule;
 
 class ProductResource extends Resource
 {
@@ -36,85 +36,31 @@ class ProductResource extends Resource
                     'unique' => 'This product name already exists.',
                 ]),
 
-            // --- Description with Toggle Source/Editor ---
+            Select::make('product_type')
+                ->options([
+                    'digital' => 'Digital',
+                    'physical' => 'Physical',
+                ])
+                ->required(),
+
+            FileUpload::make('image_url')
+                ->disk('public')
+                ->directory('products')
+                ->image()
+                ->maxSize(2048)
+                ->label('Product Image'),
+
             Forms\Components\RichEditor::make('description')
                 ->label('Description')
-                ->extraAttributes([
-                    'x-data' => '{ showSource: false, textarea: null, editor: null }',
-                    'x-init' => '
-                        this.editor = $el.querySelector("trix-editor");
-                        this.textarea = document.createElement("textarea");
-                        this.textarea.style.display = "none";
-                        this.textarea.style.width = "100%";
-                        this.textarea.style.minHeight = "200px";
-                        this.textarea.value = this.editor.editor.getDocument().toString();
-
-                        $el.appendChild(this.textarea);
-
-                        let toggle = document.createElement("button");
-                        toggle.innerText = "Toggle Source/Editor";
-                        toggle.type = "button";
-                        toggle.style.cssText = "margin-left: 10px; color: blue; font-size: 12px;";
-                        toggle.addEventListener("click", () => {
-                            this.showSource = !this.showSource;
-
-                            if (this.showSource) {
-                                this.textarea.value = this.editor.editor.getDocument().toString();
-                                this.editor.style.display = "none";
-                                this.textarea.style.display = "block";
-                            } else {
-                                this.editor.editor.loadHTML(this.textarea.value);
-                                this.textarea.style.display = "none";
-                                this.editor.style.display = "block";
-                            }
-                        });
-
-                        $el.parentNode.insertBefore(toggle, $el);
-                    ',
-                ])
                 ->columnSpanFull(),
 
-            // --- Short Description with Toggle Source/Editor ---
             Forms\Components\RichEditor::make('short_description')
                 ->label('Short Description')
-                ->extraAttributes([
-                    'x-data' => '{ showSource: false, textarea: null, editor: null }',
-                    'x-init' => '
-                        this.editor = $el.querySelector("trix-editor");
-                        this.textarea = document.createElement("textarea");
-                        this.textarea.style.display = "none";
-                        this.textarea.style.width = "100%";
-                        this.textarea.style.minHeight = "150px";
-                        this.textarea.value = this.editor.editor.getDocument().toString();
-
-                        $el.appendChild(this.textarea);
-
-                        let toggle = document.createElement("button");
-                        toggle.innerText = "Toggle Source/Editor";
-                        toggle.type = "button";
-                        toggle.style.cssText = "margin-left: 10px; color: orange; font-size: 12px;";
-                        toggle.addEventListener("click", () => {
-                            this.showSource = !this.showSource;
-
-                            if (this.showSource) {
-                                this.textarea.value = this.editor.editor.getDocument().toString();
-                                this.editor.style.display = "none";
-                                this.textarea.style.display = "block";
-                            } else {
-                                this.editor.editor.loadHTML(this.textarea.value);
-                                this.textarea.style.display = "none";
-                                this.editor.style.display = "block";
-                            }
-                        });
-
-                        $el.parentNode.insertBefore(toggle, $el);
-                    ',
-                ])
                 ->columnSpanFull(),
 
             TextInput::make('price_uk')->numeric()->required(),
             TextInput::make('price_usa')->numeric()->required(),
-            TextInput::make('discount')->numeric(),
+            TextInput::make('discount')->numeric()->nullable(),
 
             Toggle::make('featured')->label('Featured'),
 
@@ -129,6 +75,15 @@ class ProductResource extends Resource
                 ->label('Discount Type')
                 ->searchable(),
 
+            // ✅ Plan Dropdown
+            Select::make('plan_id')
+                ->relationship('plan', 'title')
+                ->label('Plan')
+                ->searchable()
+                ->preload()
+                ->required(), // remove if plan is optional
+
+            // ✅ Attributes Repeater
             Repeater::make('productAttributes')
                 ->label('Product Attributes')
                 ->relationship('productAttributes')
@@ -155,15 +110,21 @@ class ProductResource extends Resource
     {
         return $table
             ->columns([
+                ImageColumn::make('image_url')
+                    ->disk('public')
+                    ->square()
+                    ->label('Image'),
+
                 TextColumn::make('name')->searchable()->sortable(),
-                TextColumn::make('short_description')
-                    ->limit(30)
-                    ->tooltip(fn ($record) => strip_tags($record->short_description)),
+
                 TextColumn::make('price_uk')->label('UK Price')->sortable(),
                 TextColumn::make('price_usa')->label('USA Price')->sortable(),
+                TextColumn::make('discount')->label('Discount')->sortable(),
+
                 TextColumn::make('productCategory.name')->label('Category')->sortable()->toggleable(),
                 TextColumn::make('discountType.name')->label('Discount Type')->sortable()->toggleable(),
-                TextColumn::make('discount')->label('Discount')->sortable()->toggleable(),
+                TextColumn::make('plan.title')->label('Plan')->sortable()->toggleable(),
+
                 BooleanColumn::make('featured')->label('Featured')->sortable(),
             ])
             ->filters([
@@ -174,6 +135,10 @@ class ProductResource extends Resource
                 SelectFilter::make('product_discount_type_id')
                     ->label('Discount Type')
                     ->relationship('discountType', 'name'),
+
+                SelectFilter::make('plan_id')
+                    ->label('Plan')
+                    ->relationship('plan', 'title'),
 
                 SelectFilter::make('featured')
                     ->label('Featured')
@@ -187,7 +152,6 @@ class ProductResource extends Resource
             ])
             ->bulkActions([
                 Tables\Actions\DeleteBulkAction::make(),
-
             ])
             ->defaultSort('name');
     }

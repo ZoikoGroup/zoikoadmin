@@ -35,6 +35,7 @@ class EditUser extends EditRecord
                 Select::make('roles')
                     ->label('User Role')
                     ->relationship('roles', 'name')
+                    ->multiple(false)   // Important: single select only
                     ->searchable()
                     ->preload()
                     ->required()
@@ -49,18 +50,33 @@ class EditUser extends EditRecord
 
     protected function mutateFormDataBeforeSave(array $data): array
     {
-        unset($data['roles']); // Roles handled separately
+        // If roles is array, pick first value (just to be safe)
+        if (isset($data['roles']) && is_array($data['roles'])) {
+            $data['roles'] = $data['roles'][0];
+        }
+        unset($data['roles']); // We handle roles separately below
         return $data;
     }
 
     protected function afterSave(): void
     {
-        $roleId = $this->form->getState()['roles'];
-        $roleName = \Spatie\Permission\Models\Role::find($roleId)?->name;
+        // Get roles from form state, or null if not present (unchanged)
+        $roles = $this->form->getState()['roles'] ?? null;
 
-        if ($roleName) {
-            $this->record->syncRoles($roleName);
+        if ($roles === null) {
+            // Role was not changed - keep current roles synced to avoid errors
+            $currentRoles = $this->record->roles->pluck('name')->toArray();
+            $this->record->syncRoles($currentRoles);
+            return;
+        }
+
+        // Normalize $roles to single role id
+        $roleId = is_array($roles) ? $roles[0] : $roles;
+
+        $role = Role::find($roleId);
+
+        if ($role) {
+            $this->record->syncRoles([$role->name]);
         }
     }
-
 }

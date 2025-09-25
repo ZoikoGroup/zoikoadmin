@@ -39,7 +39,7 @@ class Plan extends Model
     }
 
     /**
-     * Scope for postpaid plans.
+     * postpaid plans.
      */
     public function scopePostpaid($query)
     {

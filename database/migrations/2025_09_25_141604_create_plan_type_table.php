@@ -11,9 +11,12 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::table('plans', function (Blueprint $table) {
-            //  $table->enum('plan_type', ['prepaid', 'postpaid'])->default('postpaid')->after('id');
-             $table->string('plan_type', 100)->nullable()->after('id');   
+        Schema::create('plan_types', function (Blueprint $table) {
+            $table->id();
+            $table->integer('parent_id')->unsigned()->nullable();
+            $table->string('name');
+            $table->string('slug')->unique();
+            $table->timestamps();
         });
     }
 
@@ -22,8 +25,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::table('plans', function (Blueprint $table) {
-            //
-        });
+        Schema::dropIfExists('plan_types');
     }
 };

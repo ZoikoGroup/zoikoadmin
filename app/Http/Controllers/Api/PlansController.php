@@ -13,19 +13,13 @@ class PlansController extends Controller
         $plans = Plan::all();
         return response()->json(['success' => true, 'data' => $plans]);
     }
-
-    public function plan_prepaid()
+    
+    public function plan_type($type)
     {
-        $plans = Plan::where('plan_type', 'prepaid')->get();
+        $plans = Plan::where('plan_type', $type)->get();
         return response()->json(['success' => true, 'data' => $plans]);
     }
-
-    public function plan_postpaid()
-    {
-        $plans = Plan::where('plan_type', 'postpaid')->get();
-        return response()->json(['success' => true, 'data' => $plans]);
-    }
-
+    
     public function plan_by_id($id)
     {
         $plan = Plan::find($id);

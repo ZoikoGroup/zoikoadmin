@@ -24,6 +24,7 @@ use App\Http\Controllers\Api\CurrencyController;
 use App\Http\Controllers\Api\FaqController;
 use App\Http\Controllers\Api\MenuController;
 use App\Http\Controllers\Api\MenuItemController;
+use App\Http\Controllers\Api\PlansController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -80,6 +81,8 @@ Route::group(['namespace' => 'api', 'prefix' => 'v1'], function () {
     Route::post('product/create', [ProductController::class, 'store'])->middleware('auth:api');
     Route::post('product/update/{id}', [ProductController::class, 'update'])->middleware('auth:api');
     Route::delete('product/delete/{id}', [ProductController::class, 'destroy'])->middleware('auth:api');
+    Route::get('products/cat/{id}', [ProductController::class, 'destroy'])->middleware('auth:api');
+
 
     //Product Category routes
     Route::get('product/categories/', [ProductCategoryController::class, 'index']);
@@ -183,6 +186,14 @@ Route::group(['namespace' => 'api', 'prefix' => 'v1'], function () {
     Route::get('email-templates', [EmailTemplateController::class, 'index'])->middleware('auth:api');
     Route::get('email-template/{id}', [EmailTemplateController::class, 'show'])->middleware('auth:api');
     Route::delete('email-template/delete/{id}', [EmailTemplateController::class, 'destroy'])->middleware('auth:api');
+
+    //Plans
+    Route::post('plan/create', [\App\Http\Controllers\Api\PlansController::class, 'create'])->middleware(['auth:api', 'admin_only']);
+    Route::post('plan/update/{id}', [\App\Http\Controllers\Api\PlansController::class, 'update'])->middleware(['auth:api', 'admin_only']);
+    Route::delete('plan/delete/{id}', [\App\Http\Controllers\Api\PlansController    ::class, 'delete'])->middleware(['auth:api', 'admin_only']);
+    Route::get('plans', [\App\Http\Controllers\Api\PlansController::class, 'plans']);
+    Route::get('plans/{type}', [\App\Http\Controllers\Api\PlansController::class, 'plan_type']);
+    Route::get('plan/{id}', [\App\Http\Controllers\Api\PlansController::class, 'plan_by_id']);  
 });
 
 

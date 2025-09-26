@@ -12,13 +12,11 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('plans', function (Blueprint $table) {
-            $table->unsignedBigInteger('plan_type_id')->nullable()->after('id');
-
-            $table->foreign('plan_type_id')
-                ->references('id')
-                ->on('plan_types')
-                ->onDelete('cascade');
-                });
+            $table->string('image_url')->nullable()->after('updated_at');
+            $table->string('meta_title')->nullable()->after('image_url');
+            $table->string('meta_slug')->nullable()->after('meta_title');
+            $table->string('meta_description')->nullable()->after('meta_slug');
+        });
     }
 
     /**
@@ -26,6 +24,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('plan_types');
+        //
     }
 };

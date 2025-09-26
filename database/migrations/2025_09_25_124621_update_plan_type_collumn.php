@@ -12,8 +12,9 @@ return new class extends Migration
     public function up(): void
     {
          Schema::table('plans', function (Blueprint $table) {
-            //$table->enum('plan_type', ['prepaid', 'postpaid'])->default('postpaid')->after('id');
-            $table->string('plan_type', 100)->nullable()->change();   
+            
+            $table->integer('plan_type', 100)->nullable()->change();   
+            $table->string('bq_id', 50)->after('id');
         });
     }
 

@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Str;
 
 class Product extends Model
 {
@@ -19,6 +20,7 @@ class Product extends Model
         'plan_id',
         'product_discount_type_id',
         'name',
+        'slug', // ✅ added slug
         'description',
         'short_description',
         'price_uk',
@@ -38,32 +40,46 @@ class Product extends Model
     ];
 
     /**
-     * Get the category this product belongs to.
+     * Auto-generate slug when creating.
+     */
+    protected static function booted(): void
+    {
+        static::creating(function ($product) {
+            if (empty($product->slug)) {
+                $product->slug = static::generateUniqueSlug($product->name);
+            }
+        });
+    }
+
+    /**
+     * Generate a unique slug.
+     */
+    protected static function generateUniqueSlug(string $name): string
+    {
+        $slug = Str::slug($name);
+        $count = static::where('slug', 'LIKE', "{$slug}%")->count();
+
+        return $count ? "{$slug}-{$count}" : $slug;
+    }
+
+    /**
+     * Relationships
      */
     public function productCategory()
     {
         return $this->belongsTo(ProductCategory::class, 'product_category_id');
     }
 
-    /**
-     * Get the discount type this product uses.
-     */
     public function discountType()
     {
         return $this->belongsTo(DiscountType::class, 'product_discount_type_id');
     }
 
-    /**
-     * Get the plan associated with this product.
-     */
     public function plan()
     {
         return $this->belongsTo(Plan::class, 'plan_id');
     }
 
-    /**
-     * Get the attributes for this product.
-     */
     public function productAttributes()
     {
         return $this->hasMany(ProductAttribute::class);

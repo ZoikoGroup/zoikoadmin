@@ -10,13 +10,13 @@ use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
 use Filament\Tables\Columns\TextColumn;
+use Illuminate\Support\Str;
 
 class ProductCategoryResource extends Resource
 {
     protected static ?string $model = ProductCategory::class;
 
     protected static ?string $navigationIcon = 'heroicon-o-tag';
-
     protected static ?string $navigationGroup = 'Products';
     protected static ?int $navigationSort = 0;
 
@@ -25,13 +25,25 @@ class ProductCategoryResource extends Resource
         return $form->schema([
             Forms\Components\TextInput::make('name')
                 ->required()
-                ->maxLength(255),
+                ->maxLength(255)
+                ->live(onBlur: true) // live update slug when name changes
+                ->afterStateUpdated(function ($state, callable $set) {
+                    if (!empty($state)) {
+                        $set('slug', Str::slug($state));
+                    }
+                }),
+
+            Forms\Components\TextInput::make('slug')
+                ->required()
+                ->unique(ignoreRecord: true) // enforce uniqueness
+                ->maxLength(255)
+                ->validationMessages([
+                    'unique' => 'This slug is already taken, please use a different one.',
+                ]),
 
             Forms\Components\Select::make('parent_id')
                 ->label('Parent Category')
-                ->options(
-                    ProductCategory::pluck('name', 'id')
-                )
+                ->options(ProductCategory::pluck('name', 'id'))
                 ->searchable()
                 ->preload()
                 ->nullable(),
@@ -42,7 +54,8 @@ class ProductCategoryResource extends Resource
     {
         return $table
             ->columns([
-                TextColumn::make('name')->label('Category Name'),
+                TextColumn::make('name')->label('Category Name')->sortable()->searchable(),
+                TextColumn::make('slug')->label('Slug')->sortable()->searchable(),
                 TextColumn::make('parent.name')->label('Parent Category')->default('-'),
                 TextColumn::make('created_at')->dateTime()->sortable(),
             ])

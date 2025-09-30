@@ -33,6 +33,12 @@ class UserResource extends Resource
                 ->required()
                 ->visibleOn('create'),
 
+            // ✅ Subscriber ID field (editable)
+            TextInput::make('subscriber_id')
+                ->label('Subscriber ID')
+                ->placeholder('Enter BeQuick Subscriber ID')
+                ->required(false),
+
             Select::make('roles')
                 ->label('Role')
                 ->relationship('roles', 'name')
@@ -56,6 +62,7 @@ class UserResource extends Resource
         return $table->columns([
             TextColumn::make('name')->sortable()->searchable(),
             TextColumn::make('email')->sortable()->searchable(),
+            TextColumn::make('subscriber_id')->label('Subscriber ID')->sortable()->searchable(),
             TextColumn::make('created_at')->dateTime(),
             TextColumn::make('roles.name')
                 ->label('Role')

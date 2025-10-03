@@ -4,11 +4,19 @@ namespace App\Filament\Resources;
 
 use App\Filament\Resources\PlanResource\Pages;
 use App\Models\Plan;
+use App\Models\PlanType;
 use Filament\Forms;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
+use Filament\Tables\Columns\TextColumn;
+use Filament\Forms\Components\Section;
+use Filament\Forms\Components\Select;
+use Filament\Forms\Components\TextInput;
+use Filament\Forms\Components\Repeater;
+use Filament\Forms\Components\FileUpload;
+use Illuminate\Support\Str;
 
 class PlanResource extends Resource
 {
@@ -20,72 +28,116 @@ class PlanResource extends Resource
     {
         return $form
             ->schema([
-                Forms\Components\Section::make('Plan Details')
+                Section::make('Plan Details')
                     ->schema([
-                        Forms\Components\Select::make('plan_type')
-                            ->options([
-                                'prepaid' => 'Prepaid',
-                                'postpaid' => 'Postpaid',
-                            ])
+                        TextInput::make('bq_id')
+                            ->label('Bequick ID')
+                            ->maxLength(50)
+                            ->nullable(),
+
+                        Select::make('plan_type_id')
+                            ->label('Plan Type')
+                            ->options(PlanType::all()->pluck('name', 'id'))
                             ->required(),
 
-                        Forms\Components\TextInput::make('title')
-                            ->required(),
+                        TextInput::make('title')
+                            ->required()
+                            ->maxLength(100)
+                            ->live(onBlur: true)
+                            ->afterStateUpdated(function ($state, callable $set) {
+                                if (! empty($state)) {
+                                    $slug = Str::slug($state);
+                                    $set('slug', $slug);
+                                    $set('meta_slug', $slug); // auto-copy to meta_slug
+                                    $set('meta_title', $state); // auto-copy to meta_title
+                                }
+                            }),
 
-                        Forms\Components\TextInput::make('sub_title'),
+                        TextInput::make('slug')
+                            ->label('Slug')
+                            ->unique(ignoreRecord: true)
+                            ->required()
+                            ->maxLength(150),
 
-                        Forms\Components\TextInput::make('tag'),
-                    ])->columns(2),
+                        TextInput::make('sub_title')
+                            ->maxLength(255),
 
-                Forms\Components\Section::make('Pricing & Duration')
+                        TextInput::make('tag')
+                            ->maxLength(50),
+
+                        TextInput::make('meta_title')
+                            ->label('Meta Title')
+                            ->maxLength(255),
+
+                        TextInput::make('meta_slug')
+                            ->label('Meta Slug')
+                            ->maxLength(255),
+
+                        TextInput::make('meta_description')
+                            ->label('Meta Description')
+                            ->maxLength(255),
+
+                        FileUpload::make('image_url')
+                            ->label('Plan Image')
+                            ->disk('public')
+                            ->directory('plans')
+                            ->image()
+                            ->visibility('public')
+                            ->maxSize(2048),
+                    ])
+                    ->columns(2),
+
+                Section::make('Pricing & Duration')
                     ->schema([
-                        Forms\Components\TextInput::make('price')
+                        TextInput::make('price')
                             ->numeric()
                             ->required(),
 
-                        Forms\Components\TextInput::make('currency')
+                        TextInput::make('currency')
                             ->default('USD')
-                            ->required(),
+                            ->required()
+                            ->maxLength(10),
 
-                        Forms\Components\Select::make('duration_type')
+                        Select::make('duration_type')
                             ->options([
                                 'day' => 'Day',
                                 'week' => 'Week',
                                 'month' => 'Month',
                                 'year' => 'Year',
                             ])
+                            ->default('month')
                             ->required(),
 
-                        Forms\Components\TextInput::make('duration_value')
+                        TextInput::make('duration_value')
                             ->numeric()
-                            ->required(),
-                    ])->columns(2),
+                            ->label('Duration Value'),
+                    ])
+                    ->columns(2),
 
-                Forms\Components\Section::make('Features')
+                Section::make('Features')
                     ->schema([
-                        Forms\Components\Repeater::make('features')
+                        Repeater::make('features')
                             ->label('Plan Features')
                             ->schema([
-                                Forms\Components\FileUpload::make('icon_url')
+                                FileUpload::make('icon_url')
                                     ->label('Feature Icon')
-                                    ->disk('public')             // ✅ ensure saved in public
-                                    ->directory('features')      // ✅ goes to storage/app/public/features
+                                    ->disk('public')
+                                    ->directory('features')
                                     ->image()
-                                    ->visibility('public')       // ✅ URL accessible via /storage/features/...
-                                    ->maxSize(2048)              // 2MB
-                                    ->required(),
+                                    ->visibility('public')
+                                    ->maxSize(2048),
 
-                                Forms\Components\TextInput::make('text')
-                                    ->label('Feature Text')
-                                    ->required(),
+                                TextInput::make('text')
+                                    ->label('Feature Text'),
                             ])
                             ->collapsible()
-                            ->columns(2),
+                            ->columns(2)
+                            ->nullable(),
                     ]),
 
-                Forms\Components\Section::make('Status & Order')
+                Section::make('Status & Order')
                     ->schema([
-                        Forms\Components\Select::make('status')
+                        Select::make('status')
                             ->options([
                                 'active' => 'Active',
                                 'inactive' => 'Inactive',
@@ -93,10 +145,11 @@ class PlanResource extends Resource
                             ])
                             ->default('active'),
 
-                        Forms\Components\TextInput::make('order')
+                        TextInput::make('order')
                             ->numeric()
                             ->default(0),
-                    ])->columns(2),
+                    ])
+                    ->columns(2),
             ]);
     }
 
@@ -104,24 +157,16 @@ class PlanResource extends Resource
     {
         return $table
             ->columns([
-                Tables\Columns\TextColumn::make('title')
-                    ->sortable()
-                    ->searchable(),
-
-                Tables\Columns\TextColumn::make('plan_type')->badge(),
-
-                Tables\Columns\TextColumn::make('price')
-                    ->money(fn ($record) => $record->currency),
-
-                Tables\Columns\TextColumn::make('duration_value')
+                TextColumn::make('title')->sortable()->searchable(),
+                TextColumn::make('slug')->label('Slug')->sortable()->searchable(),
+                TextColumn::make('planType.name')->label('Plan Type')->sortable()->searchable(),
+                TextColumn::make('price')->money(fn ($record) => $record->currency),
+                TextColumn::make('duration_value')
                     ->label('Duration')
                     ->formatStateUsing(fn ($state, $record) => $state . ' ' . $record->duration_type),
-
-                Tables\Columns\TextColumn::make('status')->badge(),
-
-                Tables\Columns\ViewColumn::make('features')
-                    ->label('Features')
-                    ->view('filament.tables.columns.plan-features'),
+                TextColumn::make('meta_title')->label('Meta Title')->sortable()->searchable(),
+                TextColumn::make('meta_slug')->label('Meta Slug')->sortable()->searchable(),
+                TextColumn::make('status')->badge(),
             ])
             ->defaultSort('order');
     }

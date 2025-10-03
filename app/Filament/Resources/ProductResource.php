@@ -18,6 +18,7 @@ use Filament\Forms\Components\Toggle;
 use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\Repeater;
 use Filament\Tables\Filters\SelectFilter;
+use Illuminate\Support\Str;
 
 class ProductResource extends Resource
 {
@@ -32,8 +33,22 @@ class ProductResource extends Resource
             TextInput::make('name')
                 ->required()
                 ->unique(ignoreRecord: true)
+                ->live(onBlur: true) // 👈 triggers slug generation when leaving input
+                ->afterStateUpdated(fn ($state, callable $set) =>
+                    $set('slug', Str::slug($state))
+                )
                 ->validationMessages([
                     'unique' => 'This product name already exists.',
+                ]),
+
+            // ✅ Slug field
+            TextInput::make('slug')
+                ->required()
+                ->unique(ignoreRecord: true)
+                ->disabled(fn ($context) => $context === 'create') // auto-generate on create
+                ->dehydrated()
+                ->validationMessages([
+                    'unique' => 'This slug already exists.',
                 ]),
 
             Select::make('product_type')
@@ -75,13 +90,11 @@ class ProductResource extends Resource
                 ->label('Discount Type')
                 ->searchable(),
 
-            // ✅ Plan Dropdown
             Select::make('plan_id')
                 ->relationship('plan', 'title')
                 ->label('Plan')
                 ->searchable()
                 ->preload(),
-                
 
             // ✅ Attributes Repeater
             Repeater::make('productAttributes')
@@ -116,6 +129,7 @@ class ProductResource extends Resource
                     ->label('Image'),
 
                 TextColumn::make('name')->searchable()->sortable(),
+                TextColumn::make('slug')->label('Slug')->sortable(),
 
                 TextColumn::make('price_uk')->label('UK Price')->sortable(),
                 TextColumn::make('price_usa')->label('USA Price')->sortable(),

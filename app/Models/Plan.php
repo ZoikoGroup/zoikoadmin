@@ -12,8 +12,11 @@ class Plan extends Model
     protected $table = 'plans';
 
     protected $fillable = [
+        'bq_id',
+        'plan_type_id',
         'plan_type',
         'title',
+        'slug',
         'sub_title',
         'tag',
         'price',
@@ -23,26 +26,28 @@ class Plan extends Model
         'features',
         'status',
         'order',
+        'image_url',
+        'meta_title',
+        'meta_slug',
+        'meta_description',
     ];
 
     protected $casts = [
         'features' => 'array',
-        'price'    => 'decimal:2',
+        'price' => 'decimal:2',
     ];
 
-    /**
-     * Scope for prepaid plans.
-     */
-    public function scopePrepaid($query)
+    public function planType()
     {
-        return $query->where('plan_type', 'prepaid');
+        return $this->belongsTo(PlanType::class, 'plan_type_id');
     }
 
-    /**
-     * Scope for postpaid plans.
-     */
-    public function scopePostpaid($query)
+    public function getFeaturesListAttribute()
     {
-        return $query->where('plan_type', 'postpaid');
+        if (!is_array($this->features)) {
+            return [];
+        }
+
+        return collect($this->features)->map(fn($feature) => $feature['text'] ?? '')->toArray();
     }
 }

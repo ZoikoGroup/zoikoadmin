@@ -31,7 +31,7 @@ use Illuminate\Support\Facades\Route;
 
 /*
 |--------------------------------------------------------------------------
-| API Routes  update
+| API Routes
 |--------------------------------------------------------------------------
 |
 | Here is where you can register API routes for your application. These
@@ -194,16 +194,12 @@ Route::group(['namespace' => 'api', 'prefix' => 'v1'], function () {
     Route::delete('plan/delete/{id}', [\App\Http\Controllers\Api\PlansController    ::class, 'delete'])->middleware(['auth:api', 'admin_only']);
     Route::get('plans', [\App\Http\Controllers\Api\PlansController::class, 'plans']);
     Route::get('plans/{type}', [\App\Http\Controllers\Api\PlansController::class, 'plan_type']);
-    Route::get('plan/{id}', [\App\Http\Controllers\Api\PlansController::class, 'plan_by_id']);  
-
+    Route::get('plan/{id}', [\App\Http\Controllers\Api\PlansController::class, 'plan_by_id']); 
+    
     //Plan_type
     Route::post('plan_type/create', [\App\Http\Controllers\Api\PlanTypeController::class, 'create'])->middleware(['auth:api', 'admin_only']);
     Route::post('plan_type/update/{id}', [\App\Http\Controllers\Api\PlanTypeController::class, 'update'])->middleware(['auth:api', 'admin_only']);
     Route::delete('plan_type/delete/{id}', [\App\Http\Controllers\Api\PlanTypeController    ::class, 'delete'])->middleware(['auth:api', 'admin_only']);
     Route::get('plan_types', [\App\Http\Controllers\Api\PlanTypeController::class, 'plan_types']);
-    Route::get('plan_types/{id}', [\App\Http\Controllers\Api\PlanTypeController::class, 'plan_types_by_id']);
+    Route::get('plan_types/{id}', [\App\Http\Controllers\Api\PlanTypeController::class, 'plan_types_by_id']); 
 });
-
-
-
-

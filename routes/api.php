@@ -31,7 +31,7 @@ use Illuminate\Support\Facades\Route;
 
 /*
 |--------------------------------------------------------------------------
-| API Routes
+| API Routes  update
 |--------------------------------------------------------------------------
 |
 | Here is where you can register API routes for your application. These
